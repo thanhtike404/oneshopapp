@@ -6,8 +6,12 @@ export interface Image {
 }
 
 export interface Variant {
+  id: string;
   name: string;
+  priceOffset: number;
+  stocks: Stock[];
 }
+
 
 export interface Stock {
   quantity: number;
