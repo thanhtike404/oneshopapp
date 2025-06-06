@@ -2,7 +2,6 @@ import { Product, Variant } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import {
@@ -16,6 +15,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Carousel from 'react-native-reanimated-carousel'; // Import the Carousel component from react-native-snap-carousel
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -49,85 +49,27 @@ const SkeletonLoader = () => {
   });
 
   return (
-    <SafeAreaView style={enhancedStyles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      
-      {/* Header Skeleton */}
-      <View style={enhancedStyles.headerSkeleton}>
-        <Animated.View style={[enhancedStyles.backButtonSkeleton, { opacity }]}>
-          <LinearGradient
-            colors={['#2a2a3e', '#3a3a4e']}
-            style={enhancedStyles.skeletonGradient}
-          />
-        </Animated.View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <View style={styles.headerSkeleton}>
+        <Animated.View style={[styles.backButtonSkeleton, { opacity }]} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Image Skeleton */}
-        <View style={enhancedStyles.imageSkeletonContainer}>
-          <Animated.View style={[enhancedStyles.imageSkeleton, { opacity }]}>
-            <LinearGradient
-              colors={['#2a2a3e', '#3a3a4e', '#2a2a3e']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={enhancedStyles.skeletonGradient}
-            />
-          </Animated.View>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.imageSkeletonContainer}>
+          <Animated.View style={[styles.imageSkeleton, { opacity }]} />
         </View>
 
-        {/* Content Skeleton */}
-        <View style={enhancedStyles.contentSkeleton}>
-          {/* Title Skeleton */}
-          <Animated.View style={[enhancedStyles.titleSkeleton, { opacity }]}>
-            <LinearGradient
-              colors={['#2a2a3e', '#3a3a4e']}
-              style={enhancedStyles.skeletonGradient}
-            />
-          </Animated.View>
-
-          {/* Category Skeleton */}
-          <Animated.View style={[enhancedStyles.categorySkeleton, { opacity }]}>
-            <LinearGradient
-              colors={['#2a2a3e', '#3a3a4e']}
-              style={enhancedStyles.skeletonGradient}
-            />
-          </Animated.View>
-
-          {/* Price Skeleton */}
-          <Animated.View style={[enhancedStyles.priceSkeleton, { opacity }]}>
-            <LinearGradient
-              colors={['#ff6b6b', '#ff8e8e']}
-              style={enhancedStyles.skeletonGradient}
-            />
-          </Animated.View>
-
-          {/* Description Skeleton */}
-          {[1, 2, 3].map((item) => (
-            <Animated.View key={item} style={[enhancedStyles.descriptionSkeleton, { opacity }]}>
-              <LinearGradient
-                colors={['#2a2a3e', '#3a3a4e']}
-                style={enhancedStyles.skeletonGradient}
-              />
-            </Animated.View>
+        <View style={styles.contentSkeleton}>
+          <Animated.View style={[styles.titleSkeleton, { opacity }]} />
+          <Animated.View style={[styles.categorySkeleton, { opacity }]} />
+          <Animated.View style={[styles.priceSkeleton, { opacity }]} />
+          {[1, 2, 3].map((i) => (
+            <Animated.View key={i} style={[styles.descriptionSkeleton, { opacity }]} />
           ))}
-
-          {/* Variants Skeleton */}
-          <View style={enhancedStyles.variantsTitleSkeleton}>
-            <Animated.View style={[enhancedStyles.sectionTitleSkeleton, { opacity }]}>
-              <LinearGradient
-                colors={['#2a2a3e', '#3a3a4e']}
-                style={enhancedStyles.skeletonGradient}
-              />
-            </Animated.View>
-          </View>
-
-          {[1, 2, 3].map((item) => (
-            <Animated.View key={item} style={[enhancedStyles.variantSkeleton, { opacity }]}>
-              <LinearGradient
-                colors={['#2a2a3e', '#3a3a4e']}
-                style={enhancedStyles.skeletonGradient}
-              />
-            </Animated.View>
+          <Animated.View style={[styles.sectionTitleSkeleton, { opacity }]} />
+          {[1, 2, 3].map((i) => (
+            <Animated.View key={i} style={[styles.variantSkeleton, { opacity }]} />
           ))}
         </View>
       </ScrollView>
@@ -135,7 +77,6 @@ const SkeletonLoader = () => {
   );
 };
 
-// ProductDetail.tsx
 export default function ProductDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -145,7 +86,7 @@ export default function ProductDetail() {
   type ProductWithVariant = Product & { variants: Variant[] };
 
   const fetchProduct = () => {
-    return axios.get<ProductWithVariant>(`https://oneshop-eight.vercel.app/api/v1/products/${id}`);
+    return axios.get<ProductWithVariant>(`${process.env.EXPO_PUBLIC_API_URL}/products/${id}`);
   };
 
   const { data, isLoading, isError } = useQuery({
@@ -154,9 +95,7 @@ export default function ProductDetail() {
   });
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false
-    });
+    navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
   useEffect(() => {
@@ -169,33 +108,20 @@ export default function ProductDetail() {
     }
   }, [isLoading, data]);
 
-  if (isLoading) {
-    return <SkeletonLoader />;
-  }
+  if (isLoading) return <SkeletonLoader />;
 
   if (isError) {
     return (
-      <SafeAreaView style={enhancedStyles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-        <LinearGradient
-          colors={['#1a1a2e', '#16213e']}
-          style={enhancedStyles.errorContainer}
-        >
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <View style={styles.errorContainer}>
           <Ionicons name="warning-outline" size={60} color="#ff6b6b" />
-          <Text style={enhancedStyles.errorTitle}>Oops! Something went wrong</Text>
-          <Text style={enhancedStyles.errorText}>Unable to load product details</Text>
-          <TouchableOpacity 
-            onPress={() => router.back()} 
-            style={enhancedStyles.retryButton}
-          >
-            <LinearGradient
-              colors={['#ff6b6b', '#ff8e8e']}
-              style={enhancedStyles.retryButtonGradient}
-            >
-              <Text style={enhancedStyles.retryButtonText}>Go Back</Text>
-            </LinearGradient>
+          <Text style={styles.errorTitle}>Oops! Something went wrong</Text>
+          <Text style={styles.errorText}>Unable to load product details</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.retryButton}>
+            <Text style={styles.retryButtonText}>Go Back</Text>
           </TouchableOpacity>
-        </LinearGradient>
+        </View>
       </SafeAreaView>
     );
   }
@@ -203,114 +129,84 @@ export default function ProductDetail() {
   const product = data?.data;
 
   return (
-    <SafeAreaView style={enhancedStyles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      
-      {/* Header with Back Button */}
-      <View style={enhancedStyles.header}>
-        <TouchableOpacity 
-          onPress={() => router.back()} 
-          style={enhancedStyles.backButton}
-        >
-          <LinearGradient
-            colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
-            style={enhancedStyles.backButtonGradient}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </LinearGradient>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
-      <Animated.View style={[enhancedStyles.content, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Product Image */}
           {product?.images && (
-            <View style={enhancedStyles.imageContainer}>
-              <Image
-                source={{ uri: product.images[0].url }}
-                style={enhancedStyles.productImage}
-                resizeMode="cover"
-              />
-              <LinearGradient
-                colors={['transparent', 'rgba(26,26,46,0.8)']}
-                style={enhancedStyles.imageOverlay}
+            <View style={styles.imageContainer}>
+             
+              <Carousel
+                data={product?.images}
+                width={width}
+                height={250}
+              autoPlay={true}
+ 
+          
+                loop
+            
+                renderItem={({ item, index }) => (
+                  <Image
+                    key={index}
+                    source={{ uri: item.url }}
+                    style={styles.productImage}
+                    resizeMode="cover"
+                  />
+                )}
               />
             </View>
           )}
 
-          {/* Product Details */}
-          <View style={enhancedStyles.detailsContainer}>
-            <LinearGradient
-              colors={['#1a1a2e', '#16213e']}
-              style={enhancedStyles.detailsGradient}
-            >
-              {/* Product Name */}
-              <Text style={enhancedStyles.productName}>{product?.name}</Text>
-              
-              {/* Category Badge */}
-              <View style={enhancedStyles.categoryContainer}>
-                <LinearGradient
-                  colors={['#4ecdc4', '#44a08d']}
-                  style={enhancedStyles.categoryBadge}
-                >
-                  <Text style={enhancedStyles.categoryText}>{product?.category.name}</Text>
-                </LinearGradient>
-              </View>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.productName}>{product?.name}</Text>
+            <View style={styles.categoryContainer}>
+              <Text style={styles.categoryText}>{product?.category.name}</Text>
+            </View>
 
-              {/* Price */}
-              <View style={enhancedStyles.priceContainer}>
-                <LinearGradient
-                  colors={['#ff6b6b', '#ff8e8e']}
-                  style={enhancedStyles.priceGradient}
-                >
-                  <Text style={enhancedStyles.priceText}>${product?.basePrice.toFixed(2)}</Text>
-                </LinearGradient>
-              </View>
+            <View style={styles.priceContainer}>
+              <Text style={styles.priceText}>${product?.basePrice.toFixed(2)}</Text>
+            </View>
 
-              {/* Description */}
-              <View style={enhancedStyles.descriptionContainer}>
-                <Text style={enhancedStyles.sectionTitle}>Description</Text>
-                <Text style={enhancedStyles.description}>{product?.description}</Text>
-              </View>
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.sectionTitle}>Description</Text>
+              <Text style={styles.description}>{product?.description}</Text>
+            </View>
 
-              {/* Available Sizes */}
-              <View style={enhancedStyles.variantsSection}>
-                <Text style={enhancedStyles.sectionTitle}>Available Sizes</Text>
-                <View style={enhancedStyles.variantsContainer}>
-                  {product?.variants.map((variant, index) => (
-                    <TouchableOpacity key={variant.id} style={enhancedStyles.variantItem}>
-                      <LinearGradient
-                        colors={['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
-                        style={enhancedStyles.variantGradient}
-                      >
-                        <View style={enhancedStyles.variantHeader}>
-                          <Text style={enhancedStyles.variantName}>{variant.name}</Text>
-                          {variant.priceOffset > 0 && (
-                            <View style={enhancedStyles.priceOffsetContainer}>
-                              <Text style={enhancedStyles.priceOffset}>
-                                +${variant.priceOffset.toFixed(2)}
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                        <View style={enhancedStyles.stockContainer}>
-                          <View style={[
-                            enhancedStyles.stockIndicator, 
-                            { backgroundColor: variant.stocks[0].quantity > 0 ? '#4ecdc4' : '#ff6b6b' }
-                          ]} />
-                          <Text style={enhancedStyles.stockText}>
-                            {variant.stocks[0].quantity > 0 
-                              ? `${variant.stocks[0].quantity} in stock` 
-                              : 'Out of stock'
-                            }
-                          </Text>
-                        </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+            <View style={styles.variantsSection}>
+              <Text style={styles.sectionTitle}>Available Sizes</Text>
+              <View style={styles.variantsContainer}>
+                {product?.variants.map((variant) => (
+                  <TouchableOpacity key={variant.id} style={styles.variantItem}>
+                    <View style={styles.variantHeader}>
+                      <Text style={styles.variantName}>{variant.name}</Text>
+                      {variant.priceOffset > 0 && (
+                        <Text style={styles.priceOffset}>
+                          +${variant.priceOffset.toFixed(2)}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={styles.stockContainer}>
+                      <View style={[
+                        styles.stockIndicator,
+                        {
+                          backgroundColor:
+                            variant.stocks[0].quantity > 0 ? '#4ecdc4' : '#ff6b6b'
+                        }
+                      ]} />
+                      <Text style={styles.stockText}>
+                        {variant.stocks[0].quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
-            </LinearGradient>
+            </View>
           </View>
         </ScrollView>
       </Animated.View>
@@ -318,275 +214,205 @@ export default function ProductDetail() {
   );
 }
 
-const enhancedStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
-    zIndex: 10,
+  scroll: {
+    backgroundColor: '#fff',
   },
-  backButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  backButtonGradient: {
-    width: 50,
+  headerSkeleton: {
     height: 50,
-    borderRadius: 25,
     justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  content: {
-    flex: 1,
+  backButtonSkeleton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ccc',
   },
-  imageContainer: {
-    height: height * 0.4,
-    position: 'relative',
-  },
-  productImage: {
+  imageSkeletonContainer: {
     width: '100%',
-    height: '100%',
+    height: 250,
+    backgroundColor: '#eee',
   },
-  imageOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  detailsContainer: {
+  imageSkeleton: {
     flex: 1,
-    marginTop: -30,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    overflow: 'hidden',
+    backgroundColor: '#ddd',
   },
-  detailsGradient: {
-    flex: 1,
-    padding: 25,
-    paddingTop: 35,
+  contentSkeleton: {
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  productName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  categoryContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  categoryBadge: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  categoryText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  priceContainer: {
-    alignItems: 'center',
-    marginBottom: 25,
-  },
-  priceGradient: {
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  priceText: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  descriptionContainer: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 15,
-  },
-  description: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    lineHeight: 24,
-  },
-  variantsSection: {
-    marginBottom: 20,
-  },
-  variantsContainer: {
-    gap: 12,
-  },
-  variantItem: {
-    borderRadius: 15,
-    overflow: 'hidden',
+  titleSkeleton: {
+    height: 24,
+    width: '60%',
+    backgroundColor: '#ddd',
     marginBottom: 12,
   },
-  variantGradient: {
-    padding: 20,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+  categorySkeleton: {
+    height: 20,
+    width: '40%',
+    backgroundColor: '#ddd',
+    marginBottom: 12,
   },
-  variantHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  priceSkeleton: {
+    height: 24,
+    width: '30%',
+    backgroundColor: '#ddd',
+    marginBottom: 12,
+  },
+  descriptionSkeleton: {
+    height: 16,
+    width: '100%',
+    backgroundColor: '#ddd',
+    marginBottom: 8,
+  },
+  sectionTitleSkeleton: {
+    height: 20,
+    width: '50%',
+    backgroundColor: '#ddd',
+    marginVertical: 12,
+  },
+  variantSkeleton: {
+    height: 40,
+    backgroundColor: '#ddd',
+    borderRadius: 8,
     marginBottom: 10,
   },
-  variantName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  priceOffsetContainer: {
-    backgroundColor: '#4ecdc4',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  priceOffset: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  stockContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stockIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  stockText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  
-  // Error States
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff',
   },
   errorTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 20,
-    marginBottom: 10,
-    textAlign: 'center',
+    marginTop: 12,
+    color: '#222',
   },
   errorText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
-    textAlign: 'center',
-    marginBottom: 30,
+    color: '#555',
+    marginVertical: 8,
   },
   retryButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  retryButtonGradient: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#ff6b6b',
+    borderRadius: 8,
   },
   retryButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
-
-  // Skeleton Loading Styles
-  headerSkeleton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
+  header: {
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  backButtonSkeleton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    overflow: 'hidden',
+  backButton: {
+    padding: 8,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 20,
+    alignSelf: 'flex-start',
   },
-  imageSkeletonContainer: {
-    height: height * 0.4,
+  content: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  imageSkeleton: {
+  imageContainer: {
+    width: '100%',
+    height: 250,
+    backgroundColor: '#f8f8f8',
+  },
+  productImage: {
     width: '100%',
     height: '100%',
   },
-  contentSkeleton: {
-    flex: 1,
-    padding: 25,
-    paddingTop: 35,
-    backgroundColor: '#1a1a2e',
-    marginTop: -30,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+  detailsContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  titleSkeleton: {
-    height: 32,
-    borderRadius: 8,
-    marginBottom: 15,
-    overflow: 'hidden',
-  },
-  categorySkeleton: {
-    height: 24,
-    width: 120,
-    borderRadius: 12,
-    marginBottom: 20,
-    alignSelf: 'center',
-    overflow: 'hidden',
-  },
-  priceSkeleton: {
-    height: 28,
-    width: 100,
-    borderRadius: 14,
-    marginBottom: 25,
-    alignSelf: 'center',
-    overflow: 'hidden',
-  },
-  descriptionSkeleton: {
-    height: 16,
-    borderRadius: 8,
+  productName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
     marginBottom: 8,
-    overflow: 'hidden',
   },
-  variantsTitleSkeleton: {
-    marginTop: 20,
-    marginBottom: 15,
-  },
-  sectionTitleSkeleton: {
-    height: 24,
-    width: 150,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  variantSkeleton: {
-    height: 80,
-    borderRadius: 15,
+  categoryContainer: {
+    backgroundColor: '#eee',
+    alignSelf: 'flex-start',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     marginBottom: 12,
-    overflow: 'hidden',
   },
-  skeletonGradient: {
-    ...StyleSheet.absoluteFillObject,
+  categoryText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  priceContainer: {
+    marginBottom: 16,
+  },
+  priceText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#ff6b6b',
+  },
+  descriptionContainer: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#222',
+  },
+  description: {
+    color: '#333',
+    lineHeight: 20,
+  },
+  variantsSection: {
+    marginBottom: 20,
+  },
+  variantsContainer: {
+    flexDirection: 'column',
+    gap: 10,
+  },
+  variantItem: {
+    padding: 12,
     borderRadius: 8,
+    backgroundColor: '#f4f4f4',
+  },
+  variantHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  variantName: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#111',
+  },
+  priceOffset: {
+    color: '#ff6b6b',
+  },
+  stockContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  stockIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  stockText: {
+    fontSize: 12,
+    color: '#555',
   },
 });

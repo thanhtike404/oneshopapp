@@ -26,7 +26,7 @@ export function ShirtCard({ shirt }: { shirt: Product }) {
   return (
     <View style={styles.card}>
       <Image
-        source={shirt.images?.[0]?.url}
+        source={shirt.image}
         style={styles.image}
         placeholder={PLACEHOLDER_BLURHASH}
         contentFit="cover"

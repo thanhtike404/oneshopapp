@@ -1,58 +1,30 @@
-import { ShirtCard, ShirtCardSkeleton } from '@/components/ShirtCard';
+import { ErrorView } from '@/components/Products/ErrorView';
+import { ListHeader } from '@/components/Products/ListHeader';
+import { ProductList } from '@/components/Products/ProductList';
+import { useFeaturedProducts } from '@/hooks/useFeaturedProducts';
 import { styles } from '@/styles/styles';
-import { Product } from '@/types/types';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { Text } from '@react-navigation/elements';
 import React from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 function ShirtShopPage() {
-  const { 
-    data: products,
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading,
     isError,
     error,
     refetch,
     isFetching
-  } = useQuery({
-    queryKey: ['products'],
-    queryFn: async (): Promise<Product[]> => axios.get("https://oneshop-eight.vercel.app/api/v1/dashboard/products")
-      .then(res => res.data),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  } = useFeaturedProducts();
 
-  // Loading skeletons
-  const renderSkeletons = () => {
-    return Array(6).fill(0).map((_, index) => (
-      <ShirtCardSkeleton key={`skeleton-${index}`} />
-    ));
-  };
+  // Get all products from all pages
+  const products = data?.pages?.flatMap(page => page.products) || [];
 
-  // Error view
   if (isError) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>One Shop</Text>
-        </View>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorMessage}>{error.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
+    return <ErrorView error={error} refetch={refetch} />;
   }
 
   return (
@@ -60,44 +32,22 @@ function ShirtShopPage() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>One Shop</Text>
       </View>
-      <TextInput 
-        style={styles.searchInput}
-        placeholder="Search products..."
+
+      <ProductList
+        products={products}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        isFetchingNextPage={isFetchingNextPage}
+        hasNextPage={hasNextPage}
+        refetch={refetch}
+        fetchNextPage={fetchNextPage}
+        ListHeaderComponent={<ListHeader />}
       />
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching}
-            onRefresh={refetch}
-            colors={['#333']}
-            tintColor="#333"
-          />
-        }
-      >
-        {isLoading ? (
-          <View style={styles.shirtGrid}>
-            {renderSkeletons()}
-          </View>
-        ) : (
-          <View style={styles.shirtGrid}>
-            {products?.map(shirt => (
-              <ShirtCard key={shirt.id} shirt={shirt} />
-            ))}
-                       
-            {products?.length === 0 && (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No products found</Text>
-              </View>
-            )}
-          </View>
-        )}
-      </ScrollView>
-             
-      {/* Overlay loading indicator for fetching without full reload */}
-      {isFetching && !isLoading && (
+
+      {/* Overlay loading indicator for initial load */}
+      {isLoading && (
         <View style={styles.overlayLoading}>
-          <ActivityIndicator size="small" color="#333" />
+          <ActivityIndicator size="large" color="#333" />
         </View>
       )}
     </SafeAreaView>

@@ -24,6 +24,10 @@ export interface Stock {
 export interface Category {
   id: string;
   name: string;
+imageUrl:string;
+description:string;
+products:Product[];
+subcategories:Subcategory[];  
 }
 
 export interface Subcategory {
@@ -36,6 +40,7 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
+  image:string;
   description: string;
   basePrice: number;
   images: Image[];

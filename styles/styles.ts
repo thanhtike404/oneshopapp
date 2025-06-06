@@ -161,4 +161,32 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 6,
   },
+  productItemContainer: {
+    flex: 1,
+    margin: 8,
+  },
+  shirtRow: {
+    justifyContent: 'space-around',
+    paddingHorizontal: 8,
+  },
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingMoreText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#666',
+  },
+  endOfListContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  endOfListText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+  },
 });
