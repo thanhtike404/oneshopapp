@@ -180,3 +180,9 @@ export interface CreateProductRequest {
 export interface UpdateProductRequest extends Partial<CreateProductRequest> {
   id: string;
 }
+
+export  type Slider={
+  id:number,
+  image:string,
+  title:string
+}

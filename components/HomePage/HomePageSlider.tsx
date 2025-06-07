@@ -1,28 +1,20 @@
+import { useHomepageSlider } from '@/hooks/useHompageSlider';
+import { Slider } from '@/types/types';
 import React from 'react';
 import { Dimensions, Image, Text, View } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-
 const { width } = Dimensions.get('window');
 
-const sliderData = [
-  {
-    id: '1',
-    title: 'Beautiful Mountain',
-    image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '2',
-    title: 'Sunny Beach',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: '3',
-    title: 'Forest Trail',
-    image: 'https://images.unsplash.com/photo-1508923567004-3a6b8004f3d3?auto=format&fit=crop&w=800&q=80',
-  },
-];
-
 function HomePageSlider() {
+  const { data:sliderData, isLoading, error } = useHomepageSlider();
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>Error: {error.message}</Text>;
+  }
   return (
     <View
       style={{  
@@ -37,7 +29,9 @@ function HomePageSlider() {
         data={sliderData}
         scrollAnimationDuration={1000}
         style={{ alignSelf: 'center' }} // 👈 force center alignment
-        renderItem={({ item }) => (
+        renderItem={({ item }:{
+          item:Slider
+        }) => (
           <View
             key={item.id}
             style={{

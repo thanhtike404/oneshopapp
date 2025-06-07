@@ -104,7 +104,7 @@ export const ProductList = ({
       ListHeaderComponent={ListHeaderComponent}
       ListFooterComponent={ListFooterComponent}
       ListEmptyComponent={ListEmptyComponent}
-      // onEndReached={handleEndReached}
+      onEndReached={handleEndReached}
       onEndReachedThreshold={0.1}
       refreshControl={
         <RefreshControl
