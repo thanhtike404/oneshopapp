@@ -12,6 +12,9 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "oneshoop.mm",
+      "gogogleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -32,6 +35,17 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        },
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#000000",
+          "sounds": [
+            {
+              "name": "default",
+              "file": "./assets/sounds/default.mp3"
+            }
+          ]
         }
       ]
     ],

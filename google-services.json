@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149417140765",
+    "project_id": "firecm-94d7b",
+    "storage_bucket": "firecm-94d7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149417140765:android:7b8bbf09367e996e1d5cf4",
+        "android_client_info": {
+          "package_name": "oneshoop.mm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc47kj828SNDcUN6KrugDiO_z6zVN8LDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
