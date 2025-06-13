@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "firebaseNotification",
-    "slug": "firebaseNotification",
+    "name": "firebasenotification",
+    "slug": "firebasenotification",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,19 +12,16 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "oneshoop.mm",
-      "gogogleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json",
+      "package": "oneshoop.mm"
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
       "expo-router",
@@ -35,22 +32,16 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
-        },
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#000000",
-          "sounds": [
-            {
-              "name": "default",
-              "file": "./assets/sounds/default.mp3"
-            }
-          ]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7602dd47-cec7-4edd-8278-b3098915eacc"
+      }
     }
   }
 }

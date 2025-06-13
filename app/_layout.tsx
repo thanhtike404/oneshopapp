@@ -7,17 +7,17 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-// Prevent the splash screen from auto-hiding
+import { registerForPushNotificationsAsync } from '@/services/notificationService';
+
 SplashScreen.preventAutoHideAsync();
 
-// Create a client
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded, fontError] = useFonts({
     'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
-    // Add other fonts if needed
+
   });
 
   useEffect(() => {
@@ -26,6 +26,28 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    // This timer waits 1 second before running the notification logic.
+    const timer = setTimeout(() => {
+      registerForPushNotificationsAsync()
+        .then(token => {
+          // Here, you would send the token to your Next.js backend
+          if (token) {
+            console.log('Sending token to backend:', token);
+            fetch(`${process.env.EXPO_PUBLIC_API_URL}/notifications/push`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, platform: 'expo', userId: '4bd9973b-64e8-4d88-84ca-5af38764f7c4' }),
+            });
+          }
+        })
+        .catch(error => console.error('Error registering for push notifications:', error));
+    }, 1000); // 1000 milliseconds = 1 second
+
+    // This is a cleanup function that runs if the component is removed
+    return () => clearTimeout(timer);
+  }, []);
 
   // Show a loading indicator while waiting for fonts
   if (!fontsLoaded && !fontError) {
@@ -44,14 +66,14 @@ export default function RootLayout() {
             name="(tabs)" 
             options={{ 
               headerShown: false,
-              // Add any other options you need
+            
             }} 
           />
           <Stack.Screen 
             name="+not-found" 
             options={{ 
               title: 'Not Found',
-              // Customize the not found screen
+          
             }} 
           />
           {/* Add other screens as needed */}
